@@ -9,14 +9,14 @@ EXTRA_DIST = \
 
 AUTOMAKE_OPTIONS = foreign
 
-CHANGELOG_START = 0
+CHANGELOG_START = e29150e03963e290241aad0537a3234de748f9fd
 
-ChangeLog: 
+ChangeLog:
 	@echo Creating $@ based on git log
 	@if test -d "$(srcdir)/.git"; then \
 	  (GIT_DIR=$(top_srcdir)/.git ./missing --run \
-	   git log $(CHANGELOG_START)^.. --stat) | fmt --split-only > $@.tmp \
-	  || ($(RM) $@.tmp; \
+	   git log $(CHANGELOG_START)..HEAD --stat) | fmt --split-only > $@ \
+	  || ($(RM) $@; \
 	      echo Failed to generate ChangeLog, your ChangeLog may be outdated >&2; \
 	      (test -f $@ || echo git-log is required to generate this file >> $@)); \
 	else \
