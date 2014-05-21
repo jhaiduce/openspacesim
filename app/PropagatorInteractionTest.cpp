@@ -140,11 +140,36 @@ bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 bool PropagatorTestApp::keyPressed( const OIS::KeyEvent &arg )
 {  
+    
+  if (arg.key==OIS::KC_LEFT) torquers[0]->torque=-0.5;
+    
+  if (arg.key==OIS::KC_RIGHT) torquers[0]->torque=0.5;
+    
+  if (arg.key==OIS::KC_UP) torquers[1]->torque=-0.5;
+    
+  if (arg.key==OIS::KC_DOWN) torquers[1]->torque=0.5;
+
+  if (arg.key==OIS::KC_PGUP) torquers[2]->torque=0.5;
+    
+  if (arg.key==OIS::KC_PGDOWN) torquers[2]->torque=-0.5;
+
   return BaseApplication::keyPressed(arg);
 }
 
 bool PropagatorTestApp::keyReleased( const OIS::KeyEvent &arg )
 { 
+  if (arg.key==OIS::KC_LEFT) torquers[0]->torque=0;
+    
+  if (arg.key==OIS::KC_RIGHT) torquers[0]->torque=0;
+    
+  if (arg.key==OIS::KC_UP) torquers[1]->torque=0;
+    
+  if (arg.key==OIS::KC_DOWN) torquers[1]->torque=0;
+
+  if (arg.key==OIS::KC_PGUP) torquers[2]->torque=0;
+    
+  if (arg.key==OIS::KC_PGDOWN) torquers[2]->torque=0;
+
   return BaseApplication::keyReleased(arg);
 }
 
