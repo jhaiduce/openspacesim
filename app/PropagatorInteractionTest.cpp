@@ -3,6 +3,11 @@
 //-------------------------------------------------------------------------------------
 PropagatorTestApp::PropagatorTestApp(void)
 {
+
+  gameMgr.LoadState("/home/jhaiduce/Development/space_simulator/simulator/share/statefile.json");
+
+  scObj=(Spacecraft*)gameMgr.environmentManager.getObject(0);
+  earthObj=(MassiveObject*)gameMgr.environmentManager.getObject(1);
 }
 //-------------------------------------------------------------------------------------
 PropagatorTestApp::~PropagatorTestApp(void)
@@ -35,45 +40,10 @@ void PropagatorTestApp::createScene(void)
   Ogre::Entity* earthEnt = mSceneMgr->createEntity("mySphere", Ogre::SceneManager::PT_SPHERE);
   earthEnt->setMaterialName("EarthSimple");
 
-  earthObj.mass=5.972e24;
-  earthObj.position<<0,0,0;
-  earthObj.velocity<<0,0,0;
-  earthObj.attitude=Eigen::Quaterniond(0,0,0,1);
-  earthObj.angularVelocity<<0,-1.745e-4,0;
-  simMgr.addObject(earthObj); 
-
   // Create a SceneNode and attach the Entity to it
   earthNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("EarthNode");
   earthNode->attachObject(earthEnt); 
-  earthNode->scale( 6378100./50,6356800./50,6378100./50 ); 
-
-  // Set the spacecraft's initial state
-  scObj.mass=1;
-  scObj.position<<-16000000,0,0;
-  scObj.velocity<<0,-67000,0;
-  scObj.attitude=Eigen::Quaterniond(sqrt(0.5),0,-sqrt(0.5),0);
-  scObj.angularVelocity<<0,0,0;
-
-  // Put the torquers in the torquers vector
-  // (order here is important; note that Y and Z are reversed)
-  torquers.push_back(&torqueX);
-  torquers.push_back(&torqueZ);
-  torquers.push_back(&torqueY);
-
-  // Set the initial state of the torquers
-  torqueX.Axis<<1,0,0;
-  torqueY.Axis<<0,1,0;
-  torqueZ.Axis<<0,0,1;
-  for(int i=0;i<3;i++)
-    torquers[i]->torque=0;
-
-  // Add the actuators to the spacecraft
-  scObj.actuators.push_back(&torqueX);
-  scObj.actuators.push_back(&torqueY);
-  scObj.actuators.push_back(&torqueZ);
-
-  // Add the spacecraft to the simulation
-  simMgr.addObject(scObj);
+  earthNode->scale( 6378100./50,6356800./50,6378100./50 );
 
   // Move camera to spacecraft location
   updateCameraState();
@@ -94,9 +64,9 @@ void PropagatorTestApp::updateCameraState()
 {
 
   // Move camera to spacecraft location
-  Eigen::Vector3f positionVec=scObj.position.cast<float>();
+  Eigen::Vector3f positionVec=scObj->position.cast<float>();
   mCamera->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=scObj.attitude.coeffs().cast<float>();
+  Eigen::Vector4f attitudeVec=scObj->attitude.coeffs().cast<float>();
   mCamera->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
 
 }
@@ -105,9 +75,9 @@ void PropagatorTestApp::updateEarthState()
 {
 
   // Move Earth to the location calculated by the simulation
-  Eigen::Vector3f positionVec=earthObj.position.cast<float>();
+  Eigen::Vector3f positionVec=earthObj->position.cast<float>();
   earthNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=earthObj.attitude.coeffs().cast<float>();
+  Eigen::Vector4f attitudeVec=earthObj->attitude.coeffs().cast<float>();
   earthNode->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
 
 }
@@ -126,7 +96,7 @@ bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
   double speedup=1;
 
   // Step the simulation
-  simMgr.run(lastFrameTime*speedup,time*speedup,dt*speedup);
+  gameMgr.environmentManager.run(lastFrameTime*speedup,time*speedup,dt*speedup);
 
   // Update the scene
   updateCameraState();
@@ -141,34 +111,34 @@ bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
 bool PropagatorTestApp::keyPressed( const OIS::KeyEvent &arg )
 {  
     
-  if (arg.key==OIS::KC_LEFT) torquers[0]->torque=-0.5;
+  if (arg.key==OIS::KC_LEFT) ((Torquer*)scObj->actuators[0])->torque=-0.5;
     
-  if (arg.key==OIS::KC_RIGHT) torquers[0]->torque=0.5;
+  if (arg.key==OIS::KC_RIGHT) ((Torquer*)scObj->actuators[0])->torque=0.5;
     
-  if (arg.key==OIS::KC_UP) torquers[1]->torque=-0.5;
+  if (arg.key==OIS::KC_UP) ((Torquer*)scObj->actuators[1])->torque=-0.5;
     
-  if (arg.key==OIS::KC_DOWN) torquers[1]->torque=0.5;
+  if (arg.key==OIS::KC_DOWN) ((Torquer*)scObj->actuators[1])->torque=0.5;
 
-  if (arg.key==OIS::KC_PGUP) torquers[2]->torque=0.5;
+  if (arg.key==OIS::KC_PGUP) ((Torquer*)scObj->actuators[2])->torque=0.5;
     
-  if (arg.key==OIS::KC_PGDOWN) torquers[2]->torque=-0.5;
+  if (arg.key==OIS::KC_PGDOWN) ((Torquer*)scObj->actuators[2])->torque=-0.5;
 
   return BaseApplication::keyPressed(arg);
 }
 
 bool PropagatorTestApp::keyReleased( const OIS::KeyEvent &arg )
 { 
-  if (arg.key==OIS::KC_LEFT) torquers[0]->torque=0;
+  if (arg.key==OIS::KC_LEFT) ((Torquer*)scObj->actuators[0])->torque=0;
     
-  if (arg.key==OIS::KC_RIGHT) torquers[0]->torque=0;
+  if (arg.key==OIS::KC_RIGHT) ((Torquer*)scObj->actuators[0])->torque=0;
     
-  if (arg.key==OIS::KC_UP) torquers[1]->torque=0;
+  if (arg.key==OIS::KC_UP) ((Torquer*)scObj->actuators[1])->torque=0;
     
-  if (arg.key==OIS::KC_DOWN) torquers[1]->torque=0;
+  if (arg.key==OIS::KC_DOWN) ((Torquer*)scObj->actuators[1])->torque=0;
 
-  if (arg.key==OIS::KC_PGUP) torquers[2]->torque=0;
+  if (arg.key==OIS::KC_PGUP) ((Torquer*)scObj->actuators[2])->torque=0;
     
-  if (arg.key==OIS::KC_PGDOWN) torquers[2]->torque=0;
+  if (arg.key==OIS::KC_PGDOWN) ((Torquer*)scObj->actuators[2])->torque=0;
 
   return BaseApplication::keyReleased(arg);
 }
@@ -177,7 +147,7 @@ bool PropagatorTestApp::axisMoved( const OIS::JoyStickEvent &arg, int axis )
 {
   // Set torquer states according to the joystick position
   for(int i=0; i<3; i++)
-    torquers[i]->torque=(double)arg.state.mAxes[i].abs/mJoyStick->MAX_AXIS*0.1;
+    ((Torquer*)scObj->actuators[i])->torque=(double)arg.state.mAxes[i].abs/mJoyStick->MAX_AXIS*0.1;
 
   return true;
 }

@@ -7,6 +7,7 @@
 #include "SimulationManager.hpp"
 #include "MassiveObject.hpp"
 #include "Spacecraft.hpp"
+#include "GameManager.hpp"
 
 class PropagatorTestApp : public BaseApplication
 {
@@ -16,11 +17,9 @@ public:
   double speedup;
   double lastFrameTime;
   Ogre::Timer* timer;
-  SimulationManager simMgr;
-  MassiveObject earthObj;
-  Spacecraft scObj;
-  Torquer torqueX, torqueY, torqueZ;
-  std::vector<Torquer*> torquers;
+  GameManager gameMgr;
+  MassiveObject* earthObj;
+  Spacecraft* scObj;
   Ogre::SceneNode*earthNode;
 protected:
   virtual void createScene(void);

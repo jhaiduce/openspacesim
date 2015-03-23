@@ -21,7 +21,9 @@ public:
   Eigen::VectorXd getStateDerivative(Eigen::VectorXd state);
   void run(double t0, double t1, double dt);
   Eigen::Vector3d gravitationalAcceleration(Eigen::Vector3d pos, SpaceObject*obj);
-  void addObject(SpaceObject &object);
+  void addObject(SpaceObject *object);
+  SpaceObject* getObject(int i);
+  void removeAllObjects();
 };
 
 #endif // #ifndef __SimulationManager_h_

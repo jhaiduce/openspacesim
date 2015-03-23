@@ -65,10 +65,15 @@ Eigen::Vector3d SimulationManager::gravitationalAcceleration(Eigen::Vector3d pos
 }
 
 /** Add an object to the simulation */
-void SimulationManager::addObject(SpaceObject &object)
+void SimulationManager::addObject(SpaceObject *object)
 {
-  objects.push_back(&object);
+  objects.push_back(object);
   state.resize(objects.size()*13);
+}
+
+void SimulationManager::removeAllObjects()
+{
+  objects.clear();
 }
 
 /** Functor which calls getStateDerivative */
@@ -89,4 +94,8 @@ void SimulationManager::run(double t0,double t1,double dt)
   RK4Integrator<Eigen::VectorXd> integrator(dt);
   state=integrator.step(functor,state,t0,t1,dt);
   updateObjectsWithState(state);
+}
+SpaceObject* SimulationManager::getObject(int i)
+{
+  return objects[i];
 }
