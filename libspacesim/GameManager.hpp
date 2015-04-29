@@ -10,12 +10,17 @@
 
 #include "SimulationManager.hpp"
 #include <string>
+#include <map>
+#include "rapidjson/document.h"
 
 class GameManager
 {
 public:
+  GameManager();
   SimulationManager environmentManager;
   void LoadState(std::string);
+protected:
+  std::map<std::basic_string<char>,SpaceObject* (*)(const rapidjson::Value&)> game_object_makers;
 };
 
 
