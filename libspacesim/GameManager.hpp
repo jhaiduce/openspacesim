@@ -13,14 +13,57 @@
 #include <map>
 #include "rapidjson/document.h"
 
+class GameManager;
+
+class SimulationObjectFactory: public SimulationObject
+{
+public:
+  SimulationObjectFactory(GameManager* game_manager) : game_manager(game_manager) {};
+  virtual SimulationObject*make(const rapidjson::Value& jsonobj)=0;
+  virtual ~SimulationObjectFactory(){};
+protected:
+  GameManager *game_manager;
+};
+
+class MassiveObjectFactory: public SimulationObjectFactory
+{
+public:
+  MassiveObjectFactory(GameManager* game_manager) : SimulationObjectFactory(game_manager) {};
+  SimulationObject*make(const rapidjson::Value& jsonobj);
+};
+
+class SpacecraftFactory: public SimulationObjectFactory
+{
+public:
+  SpacecraftFactory(GameManager* game_manager) : SimulationObjectFactory(game_manager) {};
+  SimulationObject*make(const rapidjson::Value& jsonobj);
+};
+
+class TorquerFactory: public SimulationObjectFactory
+{
+public:
+  TorquerFactory(GameManager* game_manager) : SimulationObjectFactory(game_manager) {};
+  SimulationObject*make(const rapidjson::Value& jsonobj);
+};
+
 class GameManager
 {
 public:
   GameManager();
   SimulationManager environmentManager;
   void LoadState(std::string);
+  void add_allocated_object(SimulationObject* object)
+  {
+    allocated_objects.push_back(object);
+  }
+  SimulationObjectFactory* get_factory(std::string type_name)
+  {
+    return game_object_makers[type_name];
+  }
+  ~GameManager();
 protected:
-  std::map<std::basic_string<char>,SpaceObject* (*)(const rapidjson::Value&)> game_object_makers;
+  std::map<std::string,SimulationObjectFactory*> game_object_makers;
+  std::vector<SimulationObject*> allocated_objects;
 };
 
 

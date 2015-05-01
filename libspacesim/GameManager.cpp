@@ -17,8 +17,9 @@
 #include "MassiveObject.hpp"
 #include "Actuator.hpp"
 
-SpaceObject* makeMassiveObject(const rapidjson::Value& jsonobj){
+SimulationObject* MassiveObjectFactory::make(const rapidjson::Value& jsonobj){
   MassiveObject* object=new MassiveObject();
+  this->game_manager->add_allocated_object(object);
   object->mass=jsonobj["mass"].GetDouble();
   for(int j=0; j<3; j++)
     object->position(j)=jsonobj["position"][j].GetDouble();
@@ -30,11 +31,12 @@ SpaceObject* makeMassiveObject(const rapidjson::Value& jsonobj){
 				      jsonobj["attitude"][3].GetDouble());
   for(int j=0; j<3; j++)
     object->angularVelocity(j)=jsonobj["angularVelocity"][j].GetDouble();
-  return (SpaceObject*)object;
+  return (SimulationObject*)object;
 }
 
-SpaceObject* makeSpacecraft(const rapidjson::Value& jsonobj){
+SimulationObject* SpacecraftFactory::make(const rapidjson::Value& jsonobj){
   Spacecraft* object=new Spacecraft();
+  this->game_manager->add_allocated_object(object);
   object->mass=jsonobj["mass"].GetDouble();
   for(int j=0; j<3; j++)
     object->position(j)=jsonobj["position"][j].GetDouble();
@@ -49,20 +51,26 @@ SpaceObject* makeSpacecraft(const rapidjson::Value& jsonobj){
 
   for(int j=0; j<jsonobj["actuators"].Size(); j++)
     {
-      if(jsonobj["actuators"][j]["type"]=="Torquer")
-	  {
-	    Torquer* torquer=new Torquer();
-	    for(int k=0; k<3; k++)
-	      torquer->Axis(k)=jsonobj["actuators"][j]["axis"][k].GetDouble();
-	    object->actuators.push_back(torquer);
-	  }
+      SimulationObjectFactory*factory=this->game_manager->get_factory(jsonobj["actuators"][j]["type"].GetString());
+      SimulationObject* actuator=factory->make(jsonobj["actuators"][j]);
+      object->actuators.push_back((Actuator*)actuator);
     }
   return (SpaceObject*)object;
 }
 
+SimulationObject* TorquerFactory::make(const rapidjson::Value& jsonobj){
+  Torquer* torquer=new Torquer();
+  this->game_manager->add_allocated_object(torquer);
+  for(int k=0; k<3; k++)
+    torquer->Axis(k)=jsonobj["axis"][k].GetDouble();
+  return (SimulationObject*)torquer;
+}
+
 GameManager::GameManager(){
-  game_object_makers["Spacecraft"]=&makeSpacecraft;
-  game_object_makers["MassiveObject"]=&makeMassiveObject;
+
+  game_object_makers["Spacecraft"]=new SpacecraftFactory(this);
+  game_object_makers["MassiveObject"]=new MassiveObjectFactory(this);
+  game_object_makers["Torquer"]=new TorquerFactory(this);
 }
 
 void GameManager::LoadState(std::string filename)
@@ -92,8 +100,19 @@ void GameManager::LoadState(std::string filename)
   for(rapidjson::SizeType i=0; i<objects.Size(); i++)
     {
       std::string typestr=objects[i]["type"].GetString();
-      SpaceObject* (*object_maker)(const rapidjson::Value&)=game_object_makers.at(typestr);
-      SpaceObject*object=object_maker(objects[i]);
-      environmentManager.addObject(object);
+      SimulationObjectFactory*factory=game_object_makers.at(typestr);
+      SimulationObject*object=factory->make(objects[i]);
+      environmentManager.addObject((SpaceObject*)object);
+    }
+}
+
+GameManager::~GameManager(){
+  for(std::vector<SimulationObject*>::iterator i=allocated_objects.begin(); i!=allocated_objects.end(); i++)
+    {
+      delete *i;
+    }
+  for(std::map<std::string,SimulationObjectFactory*>::iterator i=game_object_makers.begin(); i!=game_object_makers.end(); i++)
+    {
+      delete i->second;
     }
 }
