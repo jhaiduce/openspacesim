@@ -2,7 +2,9 @@
 #define __Actuator_h_
 
 #include <Eigen/Core>
-class Actuator
+#include "SimulationObject.hpp"
+
+class Actuator: public SimulationObject
 {
   Eigen::Vector3d Location;
 public:
@@ -11,6 +13,7 @@ public:
 
   //! Returns the torque applied by the actuator (relative to the spacecraft's origin)
   virtual Eigen::Vector3d getTorque()=0;
+  virtual ~Actuator(){};
 };
 
 class Torquer: public Actuator

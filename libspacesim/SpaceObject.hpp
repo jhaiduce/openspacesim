@@ -3,11 +3,12 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include "SimulationObject.hpp"
 
 class SimulationManager;
 
 /** Base class for all objects participating in the simulation. */
-class SpaceObject
+class SpaceObject: public SimulationObject
 {
  public:
   double mass;
@@ -19,6 +20,7 @@ class SpaceObject
   Eigen::Matrix3d moi;
   virtual Eigen::Vector3d getAcceleration(SimulationManager*simMgr)=0;
   virtual Eigen::Vector3d getAngularAcceleration(SimulationManager*simMgr)=0;
+  virtual ~SpaceObject(){};
 };
 
 #endif // #ifndef __SpaceObject_h_
