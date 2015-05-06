@@ -87,7 +87,10 @@ GameEntity* SphereFactory::make(const rapidjson::Value& jsonobj, SpaceObject*spa
   // Scale the sphere
   node->scale( jsonobj["scale"][0].GetDouble(), jsonobj["scale"][1].GetDouble(),jsonobj["scale"][2].GetDouble() );
 
-  return new GameEntity(spaceobj,entity,node);
+  GameEntity*game_entity=new GameEntity(spaceobj,entity,node);
+  this->game_manager->add_allocated_object(game_entity);
+
+  return game_entity;
 }
 
 GameManager::GameManager(Ogre::SceneManager*scene_manager) : scene_manager(scene_manager){
