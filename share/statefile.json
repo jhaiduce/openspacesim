@@ -42,6 +42,23 @@
 			"scale":[127562,127136,127562],
 			"material":"EarthSimple"
 		}
+		},
+	    {
+		"name":"Station",
+		"type":"Spacecraft",
+		"mass":1,
+		"position":[-15999950,0,0],
+		"velocity":[0,-67000,0],
+		"attitude":[0.7071067811865476,0,-0.7071067811865476,0],
+		"angularVelocity":[0.1,0.1,0],
+		"actuators":[],
+		"entity":{
+			"name":"Station",
+			"filename":"Cube.mesh",
+			"type":"Mesh",
+			"scale":[1,1,1],
+			"material":"Material"
+		}
 	    }
 	]
     }

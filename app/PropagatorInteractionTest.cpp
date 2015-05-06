@@ -31,7 +31,7 @@ void PropagatorTestApp::createScene(void)
 
   // Setup material manager
   Ogre::MaterialManager & materialManager = Ogre::MaterialManager::getSingleton();
-  Ogre::String resourceGroupName = "PlanetTextures";
+  Ogre::String resourceGroupName = "objTextures";
   Ogre::ResourceGroupManager & rgMgr = Ogre::ResourceGroupManager::getSingleton();
   rgMgr.createResourceGroup(resourceGroupName);
   Ogre::String texDirPath = "materials";
@@ -39,7 +39,8 @@ void PropagatorTestApp::createScene(void)
   rgMgr.addResourceLocation(texDirPath, "FileSystem", resourceGroupName, isRecursive);
   rgMgr.initialiseResourceGroup(resourceGroupName);
   rgMgr.loadResourceGroup(resourceGroupName);
-  Ogre::MaterialPtr material = materialManager.create("EarthSimple",resourceGroupName);
+  Ogre::MaterialPtr earthMat = materialManager.create("EarthSimple",resourceGroupName);
+  Ogre::MaterialPtr stationMat = materialManager.create("Material",resourceGroupName);
 
   gameMgr->SetSceneManager(mSceneMgr);
 
@@ -49,6 +50,7 @@ void PropagatorTestApp::createScene(void)
   earthObj=(MassiveObject*)gameMgr->environmentManager.getObject(1);
 
   earthNode=gameMgr->GetEntity(0)->GetNode();
+  stationNode=gameMgr->GetEntity(1)->GetNode();
 
   std::cout<<"Earth material:"<<mSceneMgr->getEntity("Earth")->getSubEntity(0)->getMaterialName()<<std::endl;
 
@@ -83,12 +85,21 @@ void PropagatorTestApp::updateCameraState()
 void PropagatorTestApp::updateEarthState()
 {
 
+  {
   // Move Earth to the location calculated by the simulation
   Eigen::Vector3f positionVec=earthObj->position.cast<float>();
   earthNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
   Eigen::Vector4f attitudeVec=earthObj->attitude.coeffs().cast<float>();
   earthNode->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+  }
 
+  {
+  // Move space station to the location calculated by the simulation
+  Eigen::Vector3f positionVec=gameMgr->environmentManager.getObject(2)->position.cast<float>();
+  stationNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
+  Eigen::Vector4f attitudeVec=gameMgr->environmentManager.getObject(2)->attitude.coeffs().cast<float>();
+  stationNode->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+  }
 }
 
 bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)

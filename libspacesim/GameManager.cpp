@@ -93,6 +93,33 @@ GameEntity* SphereFactory::make(const rapidjson::Value& jsonobj, SpaceObject*spa
   return game_entity;
 }
 
+GameEntity* MeshFactory::make(const rapidjson::Value& jsonobj, SpaceObject*spaceobj){
+
+  // Create the sphere
+  Ogre::Entity* entity = game_manager->GetSceneManager()->createEntity(jsonobj["name"].GetString(), jsonobj["filename"].GetString());
+  entity->setMaterialName(jsonobj["material"].GetString());
+
+  // Create a SceneNode and attach the Entity to it
+  Ogre::SceneNode *node = game_manager->GetSceneManager()->getRootSceneNode()->createChildSceneNode(jsonobj["name"].GetString());
+  node->attachObject(entity);
+
+  // Set the node's position
+  Eigen::Vector3f positionVec=spaceobj->position.cast<float>();
+  node->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
+
+  // Set the node's orientation
+  Eigen::Vector4f attitudeVec=spaceobj->attitude.coeffs().cast<float>();
+  node->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+
+  // Scale the object
+  node->scale( jsonobj["scale"][0].GetDouble(), jsonobj["scale"][1].GetDouble(),jsonobj["scale"][2].GetDouble() );
+
+  GameEntity*game_entity=new GameEntity(spaceobj,entity,node);
+  this->game_manager->add_allocated_object(game_entity);
+
+  return game_entity;
+}
+
 GameManager::GameManager(Ogre::SceneManager*scene_manager) : scene_manager(scene_manager){
   initializeFactories();
 }
@@ -107,6 +134,7 @@ void GameManager::initializeFactories(){
   game_object_makers["MassiveObject"]=new MassiveObjectFactory(this);
   game_object_makers["Torquer"]=new TorquerFactory(this);
   game_entity_makers["Sphere"]=new SphereFactory(this);
+  game_entity_makers["Mesh"]=new MeshFactory(this);
 }
 
 void GameManager::LoadState(std::string filename)

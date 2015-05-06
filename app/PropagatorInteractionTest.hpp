@@ -21,6 +21,7 @@ public:
   MassiveObject* earthObj;
   Spacecraft* scObj;
   Ogre::Node* earthNode;
+  Ogre::Node* stationNode;
 protected:
   virtual void createScene(void);
   virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
