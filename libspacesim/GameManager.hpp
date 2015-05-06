@@ -12,6 +12,8 @@
 #include <string>
 #include <map>
 #include "rapidjson/document.h"
+#include "GameEntity.hpp"
+#include <OgreSceneManager.h>
 
 class GameManager;
 
@@ -46,9 +48,34 @@ public:
   SimulationObject*make(const rapidjson::Value& jsonobj);
 };
 
+class GameEntityFactory
+{
+public:
+  GameEntityFactory(GameManager* game_manager) : game_manager(game_manager) {};
+  virtual GameEntity*make(const rapidjson::Value& jsonobj, SpaceObject*spaceobject)=0;
+  virtual ~GameEntityFactory(){};
+protected:
+  GameManager *game_manager;
+};
+
+class MeshFactory : public GameEntityFactory
+{
+public:
+  MeshFactory(GameManager* game_manager) : GameEntityFactory(game_manager) {};
+  GameEntity*make(const rapidjson::Value& jsonobj, SpaceObject*spaceobject);
+};
+
+class SphereFactory : public GameEntityFactory
+{
+public:
+  SphereFactory(GameManager* game_manager) : GameEntityFactory(game_manager) {};
+  GameEntity*make(const rapidjson::Value& jsonobj, SpaceObject*spaceobject);
+};
+
 class GameManager
 {
 public:
+  GameManager(Ogre::SceneManager*scene_manager);
   GameManager();
   SimulationManager environmentManager;
   void LoadState(std::string);
@@ -61,9 +88,17 @@ public:
     return game_object_makers[type_name];
   }
   ~GameManager();
+  Ogre::SceneManager* GetSceneManager(){return scene_manager;};
+  GameEntity* GetEntity(int i){return game_entities[i];};
+  void SetSceneManager(Ogre::SceneManager*scene_manager){this->scene_manager=scene_manager;};
 protected:
   std::map<std::string,SimulationObjectFactory*> game_object_makers;
+  std::map<std::string,GameEntityFactory*> game_entity_makers;
   std::vector<SimulationObject*> allocated_objects;
+  std::vector<GameEntity*> game_entities;
+  Ogre::SceneManager* scene_manager;
+private:
+  void initializeFactories();
 };
 
 

@@ -13,6 +13,7 @@ public:
   std::vector<Actuator*> actuators;
   virtual Eigen::Vector3d getAcceleration(SimulationManager*simMgr);
   virtual Eigen::Vector3d getAngularAcceleration(SimulationManager*simMgr);
+  virtual ~Spacecraft() {};
 };
 
 #endif // #ifndef __Spacecraft_h_

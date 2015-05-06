@@ -1,17 +1,25 @@
 #include "PropagatorInteractionTest.hpp"
+#include <OgreSubEntity.h>
 
 //-------------------------------------------------------------------------------------
 PropagatorTestApp::PropagatorTestApp(void)
 {
 
-  gameMgr.LoadState("/home/jhaiduce/Development/space_simulator/simulator/share/statefile.json");
+  gameMgr=new GameManager(mSceneMgr);
+  earthNode=NULL;
+  earthObj=NULL;
+  scObj=NULL;
+  timer=new Ogre::Timer();
+  lastFrameTime=0;
 
-  scObj=(Spacecraft*)gameMgr.environmentManager.getObject(0);
-  earthObj=(MassiveObject*)gameMgr.environmentManager.getObject(1);
+  // Time acceleration rate
+  speedup=1;
 }
 //-------------------------------------------------------------------------------------
 PropagatorTestApp::~PropagatorTestApp(void)
 {
+  delete gameMgr;
+  delete timer;
 }
 
 //-------------------------------------------------------------------------------------
@@ -33,17 +41,19 @@ void PropagatorTestApp::createScene(void)
   rgMgr.loadResourceGroup(resourceGroupName);
   Ogre::MaterialPtr material = materialManager.create("EarthSimple",resourceGroupName);
 
+  gameMgr->SetSceneManager(mSceneMgr);
+
+  gameMgr->LoadState("/home/jhaiduce/Development/space_simulator/simulator/share/statefile.json");
+
+  scObj=(Spacecraft*)gameMgr->environmentManager.getObject(0);
+  earthObj=(MassiveObject*)gameMgr->environmentManager.getObject(1);
+
+  earthNode=gameMgr->GetEntity(0)->GetNode();
+
+  std::cout<<"Earth material:"<<mSceneMgr->getEntity("Earth")->getSubEntity(0)->getMaterialName()<<std::endl;
+
   // Create SkyBox
   mSceneMgr->setSkyBox(true,"SkyBox");
-
-  // Create the earth
-  Ogre::Entity* earthEnt = mSceneMgr->createEntity("mySphere", Ogre::SceneManager::PT_SPHERE);
-  earthEnt->setMaterialName("EarthSimple");
-
-  // Create a SceneNode and attach the Entity to it
-  earthNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("EarthNode");
-  earthNode->attachObject(earthEnt); 
-  earthNode->scale( 6378100./50,6356800./50,6378100./50 );
 
   // Move camera to spacecraft location
   updateCameraState();
@@ -55,7 +65,6 @@ void PropagatorTestApp::createScene(void)
   light->setPosition(2000000.0f, 8000000.0f, 5000000.0f);
 
   // Initialize the timer
-  timer=new Ogre::Timer();
   timer->reset();
   lastFrameTime=0;
 }
@@ -92,11 +101,8 @@ bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
   double time=(double)timer->getMicroseconds()/1000000.0;
   double dt=time-lastFrameTime;
 
-  // Time acceleration rate
-  double speedup=1;
-
   // Step the simulation
-  gameMgr.environmentManager.run(lastFrameTime*speedup,time*speedup,dt*speedup);
+  gameMgr->environmentManager.run(lastFrameTime*speedup,time*speedup,dt*speedup);
 
   // Update the scene
   updateCameraState();

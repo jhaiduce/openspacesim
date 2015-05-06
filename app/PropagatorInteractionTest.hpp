@@ -17,10 +17,10 @@ public:
   double speedup;
   double lastFrameTime;
   Ogre::Timer* timer;
-  GameManager gameMgr;
+  GameManager* gameMgr;
   MassiveObject* earthObj;
   Spacecraft* scObj;
-  Ogre::SceneNode*earthNode;
+  Ogre::Node* earthNode;
 protected:
   virtual void createScene(void);
   virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);

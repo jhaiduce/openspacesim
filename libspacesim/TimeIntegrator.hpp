@@ -6,6 +6,7 @@ class dStateFunctor
 {
  public:
   virtual T operator()(double t, T y)=0;
+  virtual ~dStateFunctor(){};
 };
 
 template <class T>
@@ -17,6 +18,7 @@ class TimeIntegrator
   virtual T step(dStateFunctor<T> &f, T y0, double t0, double & t1, double & dt)=0;
   T step(dStateFunctor<T> &f, T y0, double t0, double & t1);
   virtual T run(dStateFunctor<T> &f, T y0, double t0, double t1)=0;
+  virtual ~TimeIntegrator(){};
 };
 
 /** 4th order Runge-Kutta integrator */
