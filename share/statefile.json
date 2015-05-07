@@ -18,12 +18,12 @@
 		    },
 		    {
 			"type":"Torquer",
-			"axis":[0,1,0],
+			"axis":[0,0,1],
 			"torque":0
 		    },
 		    {
 			"type":"Torquer",
-			"axis":[0,0,1],
+			"axis":[0,1,0],
 			"torque":0
 		    },
 		    {
