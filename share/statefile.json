@@ -25,6 +25,10 @@
 			"type":"Torquer",
 			"axis":[0,0,1],
 			"torque":0
+		    },
+		    {
+		    "type":"Thruster",
+		    "axis":[1,0,0]
 		    }
 		]
 	    },

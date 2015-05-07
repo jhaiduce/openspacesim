@@ -66,6 +66,14 @@ SimulationObject* TorquerFactory::make(const rapidjson::Value& jsonobj){
   return (SimulationObject*)torquer;
 }
 
+SimulationObject* ThrusterFactory::make(const rapidjson::Value& jsonobj){
+  Thruster* thruster=new Thruster();
+  this->game_manager->add_allocated_object(thruster);
+  for(int k=0; k<3; k++)
+    thruster->Axis(k)=jsonobj["axis"][k].GetDouble();
+  return (SimulationObject*)thruster;
+}
+
 GameEntity* SphereFactory::make(const rapidjson::Value& jsonobj, SpaceObject*spaceobj){
 
   // Create the sphere
@@ -133,6 +141,7 @@ void GameManager::initializeFactories(){
   game_object_makers["Spacecraft"]=new SpacecraftFactory(this);
   game_object_makers["MassiveObject"]=new MassiveObjectFactory(this);
   game_object_makers["Torquer"]=new TorquerFactory(this);
+  game_object_makers["Thruster"]=new ThrusterFactory(this);
   game_entity_makers["Sphere"]=new SphereFactory(this);
   game_entity_makers["Mesh"]=new MeshFactory(this);
 }

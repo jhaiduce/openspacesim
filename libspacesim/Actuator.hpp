@@ -28,4 +28,16 @@ public:
   virtual Eigen::Vector3d getTorque();
 };
 
+class Thruster: public Actuator
+{
+public:
+  //! Normalized axis vector
+  Eigen::Vector3d Axis;
+
+  //! Magnitude of force
+  double force;
+  virtual Eigen::Vector3d getForce();
+  virtual Eigen::Vector3d getTorque();
+};
+
 #endif // #ifndef __Actuator_h_

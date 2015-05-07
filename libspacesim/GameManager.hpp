@@ -48,6 +48,13 @@ public:
   SimulationObject*make(const rapidjson::Value& jsonobj);
 };
 
+class ThrusterFactory: public SimulationObjectFactory
+{
+public:
+  ThrusterFactory(GameManager* game_manager) : SimulationObjectFactory(game_manager) {};
+  SimulationObject*make(const rapidjson::Value& jsonobj);
+};
+
 class GameEntityFactory
 {
 public:
