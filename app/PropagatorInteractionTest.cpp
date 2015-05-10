@@ -62,7 +62,9 @@ void PropagatorTestApp::createScene(void)
 
   // Create a Light and set its position
   Ogre::Light* light = mSceneMgr->createLight("MainLight");
-  light->setPosition(2000000.0f, 8000000.0f, 5000000.0f);
+  light->setType(Ogre::Light::LT_DIRECTIONAL);
+  light->setDirection(Ogre::Vector3(0,0,1));
+  //light->setPosition(20000000.0f, 80000000.0f, 50000000.0f);
 
   // Initialize the timer
   timer->reset();
