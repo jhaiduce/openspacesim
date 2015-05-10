@@ -52,8 +52,6 @@ void PropagatorTestApp::createScene(void)
   earthNode=gameMgr->GetEntity(0)->GetNode();
   stationNode=gameMgr->GetEntity(1)->GetNode();
 
-  std::cout<<"Earth material:"<<mSceneMgr->getEntity("Earth")->getSubEntity(0)->getMaterialName()<<std::endl;
-
   // Create SkyBox
   mSceneMgr->setSkyBox(true,"SkyBox");
 
