@@ -8,9 +8,15 @@
 		"mass":1,
 		"position":[-16000000,0,0],
 		"velocity":[0,-67000,0],
+		"attitudeold":[0.7071067811865476,0,-0.7071067811865476,0],
 		"attitude":[0.7071067811865476,0,-0.7071067811865476,0],
 		"angularVelocity":[0,0,0],
 		"actuators":[
+		    {
+			"type":"Torquer",
+			"axis":[0,0,-1],
+			"torque":0
+		    },
 		    {
 			"type":"Torquer",
 			"axis":[1,0,0],
@@ -18,17 +24,12 @@
 		    },
 		    {
 			"type":"Torquer",
-			"axis":[0,0,1],
-			"torque":0
-		    },
-		    {
-			"type":"Torquer",
-			"axis":[0,1,0],
+			"axis":[0,-1,0],
 			"torque":0
 		    },
 		    {
 		    "type":"Thruster",
-		    "axis":[1,0,0]
+		    "axis":[0,0,-10]
 		    }
 		]
 	    },

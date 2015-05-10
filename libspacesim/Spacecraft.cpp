@@ -9,7 +9,10 @@ Eigen::Vector3d Spacecraft::getAcceleration(SimulationManager*simMgr)
 
   // Get the force from each actuator
   for(int i=0;i<actuators.size();i++)
-    acceleration+=actuators[i]->getForce()/mass;
+    {
+      Eigen::Vector3d actuatorAcceleration=attitude*(actuators[i]->getForce())/mass;
+      acceleration+=actuatorAcceleration;
+    }
 
   // Get the gravitational acceleration
   acceleration+=simMgr->gravitationalAcceleration(position,this);
@@ -23,7 +26,7 @@ Eigen::Vector3d Spacecraft::getAngularAcceleration(SimulationManager*simMgr)
 
   // Get the torque from each actuator
   for(int i=0;i<actuators.size();i++)
-    angularAcceleration+=actuators[i]->getTorque();
+    angularAcceleration+=attitude*(actuators[i]->getTorque());
 
   return angularAcceleration;
 }

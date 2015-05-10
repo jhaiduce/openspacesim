@@ -22,6 +22,7 @@ void SimulationManager::updateObjectsWithState(Eigen::VectorXd state)
       objects[i]->position=state.segment(i*13,3);
       objects[i]->velocity=state.segment(i*13+3,3);
       objects[i]->attitude.coeffs()=state.segment(i*13+6,4);
+      objects[i]->attitude.normalize();
       objects[i]->angularVelocity=state.segment(i*13+10,3);
     }
 }

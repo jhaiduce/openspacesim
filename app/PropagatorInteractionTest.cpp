@@ -77,8 +77,8 @@ void PropagatorTestApp::updateCameraState()
   // Move camera to spacecraft location
   Eigen::Vector3f positionVec(0,0,0);
   mCamera->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=scObj->attitude.coeffs().cast<float>();
-  mCamera->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+  Eigen::Vector4f attitudeVec=(Eigen::Quaterniond(0,1,0,0)*scObj->attitude).coeffs().cast<float>();
+  mCamera->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2) ));
 
 }
 
@@ -90,7 +90,7 @@ void PropagatorTestApp::updateEarthState()
   Eigen::Vector3f positionVec=(earthObj->position-scObj->position).cast<float>();
   earthNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
   Eigen::Vector4f attitudeVec=earthObj->attitude.coeffs().cast<float>();
-  earthNode->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+  earthNode->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2) ));
   }
 
   {
@@ -98,7 +98,7 @@ void PropagatorTestApp::updateEarthState()
   Eigen::Vector3f positionVec=(gameMgr->environmentManager.getObject(2)->position-scObj->position).cast<float>();
   stationNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
   Eigen::Vector4f attitudeVec=gameMgr->environmentManager.getObject(2)->attitude.coeffs().cast<float>();
-  stationNode->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+  stationNode->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2)));
   }
 }
 
