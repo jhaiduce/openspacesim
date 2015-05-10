@@ -77,7 +77,7 @@ void PropagatorTestApp::updateCameraState()
   // Move camera to spacecraft location
   Eigen::Vector3f positionVec(0,0,0);
   mCamera->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=(Eigen::Quaterniond(0,1,0,0)*scObj->attitude).coeffs().cast<float>();
+  Eigen::Vector4f attitudeVec=(scObj->attitude).coeffs().cast<float>();
   mCamera->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2) ));
 
 }
