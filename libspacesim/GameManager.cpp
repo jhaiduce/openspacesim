@@ -25,10 +25,10 @@ SimulationObject* MassiveObjectFactory::make(const rapidjson::Value& jsonobj){
     object->position(j)=jsonobj["position"][j].GetDouble();
   for(int j=0; j<3; j++)
     object->velocity(j)=jsonobj["velocity"][j].GetDouble();
-  object->attitude=Eigen::Quaterniond(jsonobj["attitude"][0].GetDouble(),
-				      jsonobj["attitude"][1].GetDouble(),
-				      jsonobj["attitude"][2].GetDouble(),
-				      jsonobj["attitude"][3].GetDouble());
+  object->attitude=Eigen::Quaterniond(jsonobj["attitude"][0u].GetDouble(),
+				      jsonobj["attitude"][1u].GetDouble(),
+				      jsonobj["attitude"][2u].GetDouble(),
+				      jsonobj["attitude"][3u].GetDouble());
   for(int j=0; j<3; j++)
     object->angularVelocity(j)=jsonobj["angularVelocity"][j].GetDouble();
   return (SimulationObject*)object;
@@ -42,10 +42,10 @@ SimulationObject* SpacecraftFactory::make(const rapidjson::Value& jsonobj){
     object->position(j)=jsonobj["position"][j].GetDouble();
   for(int j=0; j<3; j++)
     object->velocity(j)=jsonobj["velocity"][j].GetDouble();
-  object->attitude=Eigen::Quaterniond(jsonobj["attitude"][0].GetDouble(),
-				       jsonobj["attitude"][1].GetDouble(),
-				       jsonobj["attitude"][2].GetDouble(),
-				       jsonobj["attitude"][3].GetDouble());
+  object->attitude=Eigen::Quaterniond(jsonobj["attitude"][0u].GetDouble(),
+				       jsonobj["attitude"][1u].GetDouble(),
+				       jsonobj["attitude"][2u].GetDouble(),
+				       jsonobj["attitude"][3u].GetDouble());
   for(int j=0; j<3; j++)
     object->angularVelocity(j)=jsonobj["angularVelocity"][j].GetDouble();
 
@@ -93,7 +93,7 @@ GameEntity* SphereFactory::make(const rapidjson::Value& jsonobj, SpaceObject*spa
   node->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
 
   // Scale the sphere
-  node->scale( jsonobj["scale"][0].GetDouble(), jsonobj["scale"][1].GetDouble(),jsonobj["scale"][2].GetDouble() );
+  node->scale( jsonobj["scale"][0u].GetDouble(), jsonobj["scale"][1u].GetDouble(),jsonobj["scale"][2u].GetDouble() );
 
   GameEntity*game_entity=new GameEntity(spaceobj,entity,node);
   this->game_manager->add_allocated_object(game_entity);
@@ -120,7 +120,7 @@ GameEntity* MeshFactory::make(const rapidjson::Value& jsonobj, SpaceObject*space
   node->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
 
   // Scale the object
-  node->scale( jsonobj["scale"][0].GetDouble(), jsonobj["scale"][1].GetDouble(),jsonobj["scale"][2].GetDouble() );
+  node->scale( jsonobj["scale"][0u].GetDouble(), jsonobj["scale"][1u].GetDouble(),jsonobj["scale"][2u].GetDouble() );
 
   GameEntity*game_entity=new GameEntity(spaceobj,entity,node);
   this->game_manager->add_allocated_object(game_entity);
