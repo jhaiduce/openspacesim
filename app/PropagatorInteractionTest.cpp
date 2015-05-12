@@ -44,7 +44,7 @@ void PropagatorTestApp::createScene(void)
 
   gameMgr->SetSceneManager(mSceneMgr);
 
-  gameMgr->LoadState("/home/jhaiduce/Development/space_simulator/simulator/share/statefile.json");
+  gameMgr->LoadState("../share/statefile.json");
 
   scObj=(Spacecraft*)gameMgr->environmentManager.getObject(0);
   earthObj=(MassiveObject*)gameMgr->environmentManager.getObject(1);
