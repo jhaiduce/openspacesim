@@ -65,6 +65,16 @@
 			"material":"Material"
 		}
 	    }
-	]
+	],
+	"cameras":[
+	    {
+	    "name":"SCCamera",
+	    "near_clip":5,
+	    "far_clip":100000000,
+	    "position":[0,0,0],
+	    "orientation":[1,0,0,0],
+	    "attached_object":"Spacecraft"
+	    }
+    ]
     }
 }

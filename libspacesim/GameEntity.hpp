@@ -20,6 +20,7 @@ public:
   void updateTransformation();
   Ogre::Node* GetNode(){return node;};
   Ogre::Entity* GetEntity(){return entity;};
+  SpaceObject* GetSpaceObject(){return spaceobj;};
 protected:
   SpaceObject* spaceobj;
   Ogre::Entity* entity;

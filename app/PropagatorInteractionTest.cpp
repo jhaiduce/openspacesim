@@ -21,6 +21,54 @@ PropagatorTestApp::~PropagatorTestApp(void)
   delete gameMgr;
   delete timer;
 }
+//-------------------------------------------------------------------------------------
+bool PropagatorTestApp::setup(void)
+{
+    mRoot = new Ogre::Root(mPluginsCfg);
+
+    setupResources();
+
+    bool carryOn = configure();
+    if (!carryOn) return false;
+
+    chooseSceneManager();
+
+    // Setup material manager
+    Ogre::MaterialManager & materialManager = Ogre::MaterialManager::getSingleton();
+    Ogre::String resourceGroupName = "objTextures";
+    Ogre::ResourceGroupManager & rgMgr = Ogre::ResourceGroupManager::getSingleton();
+    rgMgr.createResourceGroup(resourceGroupName);
+    Ogre::String texDirPath = "materials";
+    bool isRecursive = false;
+    rgMgr.addResourceLocation(texDirPath, "FileSystem", resourceGroupName, isRecursive);
+    rgMgr.initialiseResourceGroup(resourceGroupName);
+    rgMgr.loadResourceGroup(resourceGroupName);
+    Ogre::MaterialPtr earthMat = materialManager.create("EarthSimple",resourceGroupName);
+    Ogre::MaterialPtr stationMat = materialManager.create("Material",resourceGroupName);
+
+    gameMgr->SetSceneManager(mSceneMgr);
+
+    gameMgr->LoadState("../share/statefile.json");
+
+    mCamera=gameMgr->getCamera(0)->camera;
+
+    createViewports();
+
+    // Set default mipmap level (NB some APIs ignore this)
+    Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+
+    // Create any resource listeners (for loading screens)
+    createResourceListener();
+    // Load resources
+    loadResources();
+
+    // Create the scene
+    createScene();
+
+    createFrameListener();
+
+    return true;
+};
 
 //-------------------------------------------------------------------------------------
 void PropagatorTestApp::createScene(void)
@@ -28,23 +76,6 @@ void PropagatorTestApp::createScene(void)
 
   // Set the scene's ambient light
   mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
-
-  // Setup material manager
-  Ogre::MaterialManager & materialManager = Ogre::MaterialManager::getSingleton();
-  Ogre::String resourceGroupName = "objTextures";
-  Ogre::ResourceGroupManager & rgMgr = Ogre::ResourceGroupManager::getSingleton();
-  rgMgr.createResourceGroup(resourceGroupName);
-  Ogre::String texDirPath = "materials";
-  bool isRecursive = false;
-  rgMgr.addResourceLocation(texDirPath, "FileSystem", resourceGroupName, isRecursive);
-  rgMgr.initialiseResourceGroup(resourceGroupName);
-  rgMgr.loadResourceGroup(resourceGroupName);
-  Ogre::MaterialPtr earthMat = materialManager.create("EarthSimple",resourceGroupName);
-  Ogre::MaterialPtr stationMat = materialManager.create("Material",resourceGroupName);
-
-  gameMgr->SetSceneManager(mSceneMgr);
-
-  gameMgr->LoadState("../share/statefile.json");
 
   scObj=(Spacecraft*)gameMgr->environmentManager.getObject(0);
   earthObj=(MassiveObject*)gameMgr->environmentManager.getObject(1);
@@ -55,11 +86,6 @@ void PropagatorTestApp::createScene(void)
   // Create SkyBox
   mSceneMgr->setSkyBox(true,"SkyBox");
 
-  // Move camera to spacecraft location
-  updateCameraState();
-
-  mCamera->setFarClipDistance(100000000);
-
   // Create a Light and set its position
   Ogre::Light* light = mSceneMgr->createLight("MainLight");
   light->setType(Ogre::Light::LT_DIRECTIONAL);
@@ -69,37 +95,6 @@ void PropagatorTestApp::createScene(void)
   // Initialize the timer
   timer->reset();
   lastFrameTime=0;
-}
-
-void PropagatorTestApp::updateCameraState()
-{
-
-  // Move camera to spacecraft location
-  Eigen::Vector3f positionVec(0,0,0);
-  mCamera->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=(scObj->attitude).coeffs().cast<float>();
-  mCamera->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2) ));
-
-}
-
-void PropagatorTestApp::updateEarthState()
-{
-
-  {
-  // Move Earth to the location calculated by the simulation
-  Eigen::Vector3f positionVec=(earthObj->position-scObj->position).cast<float>();
-  earthNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=earthObj->attitude.coeffs().cast<float>();
-  earthNode->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2) ));
-  }
-
-  {
-  // Move space station to the location calculated by the simulation
-  Eigen::Vector3f positionVec=(gameMgr->environmentManager.getObject(2)->position-scObj->position).cast<float>();
-  stationNode->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
-  Eigen::Vector4f attitudeVec=gameMgr->environmentManager.getObject(2)->attitude.coeffs().cast<float>();
-  stationNode->setOrientation(Ogre::Quaternion(attitudeVec(3),attitudeVec(0),attitudeVec(1),attitudeVec(2)));
-  }
 }
 
 bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
@@ -113,11 +108,9 @@ bool PropagatorTestApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
   double dt=time-lastFrameTime;
 
   // Step the simulation
-  gameMgr->environmentManager.run(lastFrameTime*speedup,time*speedup,dt*speedup);
-
-  // Update the scene
-  updateCameraState();
-  updateEarthState();
+  gameMgr->run(lastFrameTime*speedup,time*speedup);
+  gameMgr->updateNodePositions();
+  gameMgr->updateCameraPositions();
 
   // Store the time
   lastFrameTime=time;

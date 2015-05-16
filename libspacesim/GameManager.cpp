@@ -116,8 +116,8 @@ GameEntity* MeshFactory::make(const rapidjson::Value& jsonobj, SpaceObject*space
   node->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
 
   // Set the node's orientation
-  Eigen::Vector4f attitudeVec=spaceobj->attitude.coeffs().cast<float>();
-  node->setOrientation(Ogre::Quaternion(static_cast<Ogre::Real*>(attitudeVec.data()) ));
+  Eigen::Quaterniond attitude=spaceobj->attitude;
+  node->setOrientation(Ogre::Quaternion(attitude.w(),attitude.x(),attitude.y(),attitude.z()));
 
   // Scale the object
   node->scale( jsonobj["scale"][0u].GetDouble(), jsonobj["scale"][1u].GetDouble(),jsonobj["scale"][2u].GetDouble() );
@@ -126,6 +126,29 @@ GameEntity* MeshFactory::make(const rapidjson::Value& jsonobj, SpaceObject*space
   this->game_manager->add_allocated_object(game_entity);
 
   return game_entity;
+}
+
+GameCamera* CameraFactory::make(const rapidjson::Value& jsonobj){
+
+  // Create the sphere
+  Ogre::Camera* camera = game_manager->GetSceneManager()->createCamera(jsonobj["name"].GetString());
+
+  SpaceObject*spaceobj=game_manager->getSpaceObject(jsonobj["attached_object"].GetString());
+
+  // Set the node's position
+  Eigen::Vector3f positionVec=spaceobj->position.cast<float>();
+  camera->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
+
+  // Set the node's orientation
+  Eigen::Quaterniond attitude=spaceobj->attitude;
+  camera->setOrientation(Ogre::Quaternion(attitude.w(),attitude.x(),attitude.y(),attitude.z() ));
+
+  camera->setNearClipDistance(jsonobj["near_clip"].GetDouble());
+  camera->setFarClipDistance(jsonobj["far_clip"].GetDouble());
+
+  GameCamera* gamecamera=new GameCamera(camera,spaceobj);
+
+  return gamecamera;
 }
 
 GameManager::GameManager(Ogre::SceneManager*scene_manager) : scene_manager(scene_manager){
@@ -144,6 +167,7 @@ void GameManager::initializeFactories(){
   game_object_makers["Thruster"]=new ThrusterFactory(this);
   game_entity_makers["Sphere"]=new SphereFactory(this);
   game_entity_makers["Mesh"]=new MeshFactory(this);
+  camera_maker=new CameraFactory(this);
 }
 
 void GameManager::LoadState(std::string filename)
@@ -176,6 +200,7 @@ void GameManager::LoadState(std::string filename)
       SimulationObjectFactory*factory=game_object_makers.at(typestr);
       SimulationObject*object=factory->make(objects[i]);
       environmentManager.addObject((SpaceObject*)object);
+      space_objects[objects[i]["name"].GetString()]=(SpaceObject*)object;
 
       if(scene_manager!=NULL)
 	{
@@ -189,6 +214,44 @@ void GameManager::LoadState(std::string filename)
 	      game_entities.push_back(entity);
 	    }
 	}
+    }
+  const rapidjson::Value& cameras_json=doc["Environment"]["cameras"];
+  if(scene_manager!=NULL)
+    {
+      for(rapidjson::SizeType i=0; i<cameras_json.Size(); i++)
+	{
+	  GameCamera*camera=camera_maker->make(cameras_json[i]);
+	  cameras.push_back(camera);
+	}
+      defaultCamera=cameras[0];
+    }
+}
+
+void GameManager::run(double t0,double t1){
+  environmentManager.run(t0,t1,t1-t0);
+}
+
+void GameManager::updateCameraPositions()
+{
+  for(std::vector<GameCamera*>::iterator i=cameras.begin(); i<cameras.end(); i++)
+    {
+      // Move space station to the location calculated by the simulation
+      Eigen::Vector3f positionVec=((*i)->spaceobj->position-defaultCamera->spaceobj->position).cast<float>();
+      (*i)->camera->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
+      Eigen::Quaterniond attitude=(*i)->spaceobj->attitude;
+      (*i)->camera->setOrientation(Ogre::Quaternion(attitude.w(),attitude.x(),attitude.y(),attitude.z()));
+    }
+}
+
+void GameManager::updateNodePositions()
+{
+  for(std::vector<GameEntity*>::iterator i=game_entities.begin(); i<game_entities.end(); i++)
+    {
+      // Move space station to the location calculated by the simulation
+      Eigen::Vector3f positionVec=((*i)->GetSpaceObject()->position-defaultCamera->spaceobj->position).cast<float>();
+      (*i)->GetNode()->setPosition(Ogre::Vector3( static_cast<Ogre::Real*>(positionVec.data()) ));
+      Eigen::Quaterniond attitude=(*i)->GetSpaceObject()->attitude;
+      (*i)->GetNode()->setOrientation(Ogre::Quaternion(attitude.w(),attitude.x(),attitude.y(),attitude.z()));
     }
 }
 

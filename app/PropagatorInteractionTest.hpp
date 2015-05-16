@@ -24,6 +24,7 @@ public:
   Ogre::Node* stationNode;
 protected:
   virtual void createScene(void);
+  virtual bool setup();
   virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
   // OIS::KeyListener
@@ -34,8 +35,6 @@ protected:
 
   // OIS::JoyStickListener
   virtual bool axisMoved( const OIS::JoyStickEvent &arg, int axis );
-  void updateCameraState();
-  void updateEarthState();
 };
 
 #endif // #ifndef __PropagatorTestApp_h_

@@ -79,6 +79,22 @@ public:
   GameEntity*make(const rapidjson::Value& jsonobj, SpaceObject*spaceobject);
 };
 
+class GameCamera{
+public:
+  GameCamera(Ogre::Camera*camera, SpaceObject*spaceobj): camera(camera), spaceobj(spaceobj) {};
+  Ogre::Camera*camera;
+  SpaceObject*spaceobj;
+};
+
+class CameraFactory
+{
+public:
+  CameraFactory(GameManager* game_manager) : game_manager(game_manager) {};
+  GameCamera*make(const rapidjson::Value& jsonobj);
+protected:
+  GameManager *game_manager;
+};
+
 class GameManager
 {
 public:
@@ -98,12 +114,21 @@ public:
   Ogre::SceneManager* GetSceneManager(){return scene_manager;};
   GameEntity* GetEntity(int i){return game_entities[i];};
   void SetSceneManager(Ogre::SceneManager*scene_manager){this->scene_manager=scene_manager;};
+  void run(double t0,double t1);
+  void updateNodePositions();
+  void updateCameraPositions();
+  GameCamera* getCamera(int i){return cameras[i];};
+  SpaceObject* getSpaceObject(std::string name){return space_objects[name];};
 protected:
   std::map<std::string,SimulationObjectFactory*> game_object_makers;
   std::map<std::string,GameEntityFactory*> game_entity_makers;
+  std::map<std::string,SpaceObject*> space_objects;
   std::vector<SimulationObject*> allocated_objects;
   std::vector<GameEntity*> game_entities;
+  std::vector<GameCamera*> cameras;
   Ogre::SceneManager* scene_manager;
+  CameraFactory* camera_maker;
+  GameCamera* defaultCamera;
 private:
   void initializeFactories();
 };
