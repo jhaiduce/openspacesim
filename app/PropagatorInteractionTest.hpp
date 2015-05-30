@@ -35,6 +35,10 @@ protected:
 
   // OIS::JoyStickListener
   virtual bool axisMoved( const OIS::JoyStickEvent &arg, int axis );
+  virtual bool povMoved( const OIS::JoyStickEvent &arg, int axis );
+
+  void updateCameraState();
+  void updateEarthState();
 };
 
 #endif // #ifndef __PropagatorTestApp_h_

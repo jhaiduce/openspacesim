@@ -1,5 +1,6 @@
 #include "PropagatorInteractionTest.hpp"
 #include <OgreSubEntity.h>
+#include <math.h>
 
 //-------------------------------------------------------------------------------------
 PropagatorTestApp::PropagatorTestApp(void)
@@ -133,8 +134,6 @@ bool PropagatorTestApp::keyPressed( const OIS::KeyEvent &arg )
     
   if (arg.key==OIS::KC_PGDOWN) ((Torquer*)scObj->actuators[2])->torque=-0.5;
 
-  if(arg.key==OIS::KC_SPACE) ((Thruster*)scObj->actuators[3])->force=1;
-
   return BaseApplication::keyPressed(arg);
 }
 
@@ -152,13 +151,12 @@ bool PropagatorTestApp::keyReleased( const OIS::KeyEvent &arg )
     
   if (arg.key==OIS::KC_PGDOWN) ((Torquer*)scObj->actuators[2])->torque=0;
 
-  if(arg.key==OIS::KC_SPACE) ((Thruster*)scObj->actuators[3])->force=0;
-
   return BaseApplication::keyReleased(arg);
 }
 
 bool PropagatorTestApp::axisMoved( const OIS::JoyStickEvent &arg, int axis )
 {
+
   // Set torquer states according to the joystick position
   for(int i=0; i<3; i++)
     ((Torquer*)scObj->actuators[i])->torque=(double)arg.state.mAxes[i].abs/mJoyStick->MAX_AXIS*0.1;
@@ -166,9 +164,47 @@ bool PropagatorTestApp::axisMoved( const OIS::JoyStickEvent &arg, int axis )
   return true;
 }
 
-// Joystick button handlers (do nothing for now)
-bool PropagatorTestApp::buttonPressed( const OIS::JoyStickEvent &arg, int button ){return true;}
-bool PropagatorTestApp::buttonReleased( const OIS::JoyStickEvent &arg, int button ){return true;}
+bool PropagatorTestApp::povMoved( const OIS::JoyStickEvent &arg, int pov )
+{
+  int direction=arg.state.mPOV[0].direction;
+
+  for(int i=3; i<7; i++)
+  {
+    ((Thruster*)scObj->actuators[i])->force=0;
+  }
+
+  switch(direction){
+  case OIS::Pov::West:
+      ((Thruster*)scObj->actuators[3])->force=10;
+      break;
+  case OIS::Pov::East:
+      ((Thruster*)scObj->actuators[4])->force=10;
+      break;
+  case OIS::Pov::North:
+	  ((Thruster*)scObj->actuators[5])->force=10;
+	  break;
+  case OIS::Pov::South:
+	  ((Thruster*)scObj->actuators[6])->force=10;
+	  break;
+  }
+  return true;
+}
+
+// Joystick button handlers
+bool PropagatorTestApp::buttonPressed( const OIS::JoyStickEvent &arg, int button )
+{
+	std::cout<<"Button pressed:"<<button<<std::endl;
+	if(button==2) ((Thruster*)scObj->actuators[7])->force=10;
+	if(button==4) ((Thruster*)scObj->actuators[8])->force=10;
+	return true;
+}
+bool PropagatorTestApp::buttonReleased( const OIS::JoyStickEvent &arg, int button )
+{
+	std::cout<<"Button released:"<<button<<std::endl;
+	if(button==2) ((Thruster*)scObj->actuators[7])->force=0;
+	if(button==4) ((Thruster*)scObj->actuators[8])->force=0;
+	return true;
+}
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

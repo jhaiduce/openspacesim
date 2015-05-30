@@ -29,7 +29,27 @@
 		    },
 		    {
 		    "type":"Thruster",
-		    "axis":[0,0,-10]
+		    "axis":[-1,0,0]
+		    },
+		    {
+		    "type":"Thruster",
+		    "axis":[1,0,0]
+		    },
+		    {
+		    "type":"Thruster",
+		    "axis":[0,0,-1]
+		    },
+		    {
+		    "type":"Thruster",
+		    "axis":[0,0,1]
+		    },
+		    {
+		    "type":"Thruster",
+		    "axis":[0,-1,0]
+		    },
+		    {
+		    "type":"Thruster",
+		    "axis":[0,1,0]
 		    }
 		]
 	    },
