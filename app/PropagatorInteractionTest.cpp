@@ -9,6 +9,7 @@ PropagatorTestApp::PropagatorTestApp(void)
   gameMgr=new GameManager(mSceneMgr);
   earthNode=NULL;
   earthObj=NULL;
+  stationNode=NULL;
   scObj=NULL;
   timer=new Ogre::Timer();
   lastFrameTime=0;
