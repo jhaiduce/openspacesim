@@ -135,6 +135,8 @@ bool PropagatorTestApp::keyPressed( const OIS::KeyEvent &arg )
     
   if (arg.key==OIS::KC_PGDOWN) ((Torquer*)scObj->actuators[2])->torque=-0.5;
 
+  if (arg.key==OIS::KC_SPACE) ((Thruster*)scObj->actuators[5])->force=10;
+
   return BaseApplication::keyPressed(arg);
 }
 
@@ -151,6 +153,8 @@ bool PropagatorTestApp::keyReleased( const OIS::KeyEvent &arg )
   if (arg.key==OIS::KC_PGUP) ((Torquer*)scObj->actuators[2])->torque=0;
     
   if (arg.key==OIS::KC_PGDOWN) ((Torquer*)scObj->actuators[2])->torque=0;
+
+  if (arg.key==OIS::KC_SPACE) ((Thruster*)scObj->actuators[5])->force=0;
 
   return BaseApplication::keyReleased(arg);
 }
